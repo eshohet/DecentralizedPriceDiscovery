@@ -1,18 +1,50 @@
 const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
-let contract;
+let contract, priceChart;
+let prices = [];
+let times = [];
+let currentProcedure = 0;
 
-async function submitPrice() {
+async function submitPrice(price, procedureNumber) {
     web3.eth.getAccounts(async (error, accounts) => {
-        const price = document.getElementById('price').value;
-        const txn = await contract.updatePrice(price, 0, {from: accounts[0]});
+        const txn = await contract.updatePrice(price, procedureNumber, {from: accounts[0]});
         swal({
             title: 'Success!',
-            text: 'You have successfully updated the price',
+            text: `You have successfully updated the price for procedure ${procedures[procedureNumber]}`,
             type: 'success',
             confirmButtonText: 'Continue'
         });
     });
 }
+
+function addData(chart, label, data) {
+    chart.data.labels = label;
+    chart.data.datasets.forEach((dataset) => {
+        dataset.data = data;
+    });
+    chart.update();
+}
+
+function removeData(chart) {
+    chart.data.labels.pop();
+    chart.data.datasets.forEach((dataset) => {
+        dataset.data.pop();
+    });
+    chart.update();
+}
+
+$("#search").autocomplete({
+    source: procedures
+}).keypress(function (e) {
+    const searchValue = $("#search").val();
+    const procedureNumber = procedures.indexOf(searchValue);
+    if(procedureNumber > -1) {
+        //switch graph
+        console.log(`switching graph to procedure ${procedureNumber}`);
+        currentProcedure = procedureNumber;
+        removeData(priceChart);
+        addData(priceChart, times[procedureNumber], prices[procedureNumber]);
+    }
+});
 
 $.get('./Prices.json', (contractData) => {
 
@@ -23,49 +55,32 @@ $.get('./Prices.json', (contractData) => {
     contract = web3.eth.contract(abi).at(address);
     const priceUpdateEvent = contract.PriceUpdated({}, {fromBlock: DEPLOYED_BLOCK_NO, toBlock: 'pending'});
 
-    let prices = [];
-    let times = [];
+
     const ctx = document.getElementById("priceChart").getContext('2d');
 
-    const priceChart = new Chart(ctx, {
+    priceChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: times,
+            labels: [],
             datasets: [{
-                label: 'Price',
-                data: prices,
-                fill: false,
+                data: [],
+                lineTension: 0,
+                backgroundColor: 'transparent',
+                borderColor: '#007bff',
+                borderWidth: 4,
+                pointBackgroundColor: '#007bff'
             }]
         },
         options: {
-            responsive: false,
-            title: {
-                display: true,
-                text: 'Price vs Time'
-            },
-            tooltips: {
-                mode: 'index',
-                intersect: false,
-            },
-            hover: {
-                mode: 'nearest',
-                intersect: true
-            },
             scales: {
-                xAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Time'
-                    }
-                }],
                 yAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Price'
+                    ticks: {
+                        beginAtZero: false
                     }
                 }]
+            },
+            legend: {
+                display: false,
             }
         }
     });
@@ -74,12 +89,10 @@ $.get('./Prices.json', (contractData) => {
         const operator = result.args.operator;
         const procedure = result.args.procedure;
         const price = result.args.price;
-        const time = result.args.time;
+        const time = moment.unix(result.args.time.toNumber()).fromNow();
 
-        prices.push(price);
-        times.push(time);
-
-        priceChart.update();
+        prices[procedure] === undefined ? prices[procedure] = [price.toNumber()] : prices[procedure].push(price.toNumber());
+        times[procedure] === undefined ? times[procedure] = [time] : times[procedure].push(time);
     });
 
 
