@@ -7,24 +7,37 @@ let currentProcedure = 0;
 async function submitPrice() {
     web3.eth.getAccounts(async (error, accounts) => {
 
+        if ($("#dashboardMessage").css('display') === 'block') {
+            swal({
+                title: 'Error!',
+                text: `Please select a procedure before submitting a price`,
+                type: 'error',
+                confirmButtonText: 'Will do'
+            });
+        }
 
-        const {value: price} = await swal({
-            title: `What does a(n) ${procedures[currentProcedure]} cost?`,
-            input: 'text',
-            inputValue: 100,
-            showCancelButton: true,
-            inputValidator: (value) => {
-                return !value && 'You need to write something!'
+        else {
+            const {value: price} = await swal({
+                title: `What does a(n) ${procedures[currentProcedure]} cost?`,
+                input: 'text',
+                inputValue: 100,
+                showCancelButton: true,
+                inputValidator: (value) => {
+                    return !value && 'You need to write something!'
+                }
+            });
+
+            if (price) {
+                const txn = await contract.updatePrice(price, currentProcedure, {from: accounts[0]});
+                swal({
+                    title: 'Success!',
+                    text: `You have successfully updated the price for procedure ${procedures[currentProcedure]}`,
+                    type: 'success',
+                    confirmButtonText: 'Continue'
+                });
+
             }
-        });
-
-        const txn = await contract.updatePrice(price, currentProcedure, {from: accounts[0]});
-        swal({
-            title: 'Success!',
-            text: `You have successfully updated the price for procedure ${procedures[procedureNumber]}`,
-            type: 'success',
-            confirmButtonText: 'Continue'
-        });
+        }
     });
 }
 
@@ -59,7 +72,7 @@ function changeProcedure(procedureNumber) {
     console.log(`switching graph to procedure ${procedureNumber}`);
     currentProcedure = procedureNumber;
 
-    if(prices[currentProcedure] === undefined) {
+    if (prices[currentProcedure] === undefined) {
         prices[currentProcedure] = [];
         times[currentProcedure] = [];
     }
