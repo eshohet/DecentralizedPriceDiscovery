@@ -4,13 +4,17 @@ let contract;
 async function submitPrice() {
     web3.eth.getAccounts(async (error, accounts) => {
         const price = document.getElementById('price').value;
-        const txn = await contract.updatePrice(price, {from: accounts[0]});
-        console.log(txn);
+        const txn = await contract.updatePrice(price, 0, {from: accounts[0]});
+        swal({
+            title: 'Success!',
+            text: 'You have successfully updated the price',
+            type: 'success',
+            confirmButtonText: 'Continue'
+        });
     });
 }
 
 $.get('./Prices.json', (contractData) => {
-
 
     const abi = contractData.abi;
     const address = contractData.networks[Object.keys(contractData.networks)[0]].address;
@@ -19,12 +23,10 @@ $.get('./Prices.json', (contractData) => {
     contract = web3.eth.contract(abi).at(address);
     const priceUpdateEvent = contract.PriceUpdated({}, {fromBlock: DEPLOYED_BLOCK_NO, toBlock: 'pending'});
 
-
-
-
     let prices = [];
     let times = [];
     const ctx = document.getElementById("priceChart").getContext('2d');
+
     const priceChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -70,6 +72,7 @@ $.get('./Prices.json', (contractData) => {
 
     priceUpdateEvent.watch(function (error, result) {
         const operator = result.args.operator;
+        const procedure = result.args.procedure;
         const price = result.args.price;
         const time = result.args.time;
 
