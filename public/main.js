@@ -41,8 +41,7 @@ $("#search").autocomplete({
         //switch graph
         console.log(`switching graph to procedure ${procedureNumber}`);
         currentProcedure = procedureNumber;
-        removeData(priceChart);
-        addData(priceChart, times[procedureNumber], prices[procedureNumber]);
+        addData(priceChart, times[currentProcedure], prices[currentProcedure]);
     }
 });
 
@@ -93,6 +92,9 @@ $.get('./Prices.json', (contractData) => {
 
         prices[procedure] === undefined ? prices[procedure] = [price.toNumber()] : prices[procedure].push(price.toNumber());
         times[procedure] === undefined ? times[procedure] = [time] : times[procedure].push(time);
+
+        addData(priceChart, times[currentProcedure], prices[currentProcedure]);
+
     });
 
 
