@@ -2,6 +2,10 @@
 
 The purpose of this project is to discover the fair market price of a procedure in a fully decentralized manner.
 
+## Video
+
+https://www.youtube.com/watch?v=nBVsWPTBsoo
+
 ## Setup & Operation
 All dependencies will automatically be installed and ran with the following command:
 
