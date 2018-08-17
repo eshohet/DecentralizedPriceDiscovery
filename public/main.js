@@ -138,6 +138,9 @@ $.get('./Prices.json', (contractData) => {
 
         prices[procedure].push(price.toNumber());
         times[procedure].push(time);
+
+        addData(priceChart, times[currentProcedure], prices[currentProcedure]);
+
     });
 
 
