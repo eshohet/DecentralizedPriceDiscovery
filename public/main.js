@@ -4,9 +4,21 @@ let prices = [];
 let times = [];
 let currentProcedure = 0;
 
-async function submitPrice(price, procedureNumber) {
+async function submitPrice() {
     web3.eth.getAccounts(async (error, accounts) => {
-        const txn = await contract.updatePrice(price, procedureNumber, {from: accounts[0]});
+
+
+        const {value: price} = await swal({
+            title: `What does a(n) ${procedures[currentProcedure]} cost?`,
+            input: 'text',
+            inputValue: 100,
+            showCancelButton: true,
+            inputValidator: (value) => {
+                return !value && 'You need to write something!'
+            }
+        });
+
+        const txn = await contract.updatePrice(price, currentProcedure, {from: accounts[0]});
         swal({
             title: 'Success!',
             text: `You have successfully updated the price for procedure ${procedures[procedureNumber]}`,
@@ -41,6 +53,8 @@ $("#search").autocomplete({
         //switch graph
         console.log(`switching graph to procedure ${procedureNumber}`);
         currentProcedure = procedureNumber;
+        $("#dashboardMessage").css('display', 'none');
+        $("#priceChart").css('display', 'block');
         addData(priceChart, times[currentProcedure], prices[currentProcedure]);
     }
 });
