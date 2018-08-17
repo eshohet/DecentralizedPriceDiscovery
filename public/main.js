@@ -85,7 +85,7 @@ function changeProcedure(procedureNumber) {
 procedures.map((procedure) => {
     $("#medicalList").append(`<div class="card text-white bg-dark mb-3" style="width: 18rem;">
   <div class="card-body">
-    <h5 class="card-title"><a href="javascript:changeProcedure(${procedures.indexOf(procedure)});">${procedure}</a></h5>
+    <h5 class="card-title"><a style="color: white; text-decoration: underline;" href="javascript:changeProcedure(${procedures.indexOf(procedure)});">${procedure}</a></h5>
   </div>
 </div>`);
 });
