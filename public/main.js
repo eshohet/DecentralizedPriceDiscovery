@@ -1,7 +1,7 @@
 const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
 let contract, priceChart;
 let prices = [...new Array(procedures.length)].map((el, i, arr) => []);
-let times = prices;
+let times = [...new Array(procedures.length)].map((el, i, arr) => []);
 let currentProcedure = 0;
 
 async function submitPrice() {
@@ -120,7 +120,7 @@ $.get('./Prices.json', (contractData) => {
             scales: {
                 yAxes: [{
                     ticks: {
-                        beginAtZero: false
+                        beginAtZero: true
                     }
                 }]
             },
@@ -138,9 +138,6 @@ $.get('./Prices.json', (contractData) => {
 
         prices[procedure].push(price.toNumber());
         times[procedure].push(time);
-
-        addData(priceChart, times[currentProcedure], prices[currentProcedure]);
-
     });
 
 

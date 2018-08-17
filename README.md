@@ -41,16 +41,14 @@ The following snippet is used to watch for events emitted by the smart contract.
 const DEPLOYED_BLOCK_NO = 0;
 contract = web3.eth.contract(abi).at(address);
 const priceUpdateEvent = contract.PriceUpdated({}, {fromBlock: DEPLOYED_BLOCK_NO, toBlock: 'pending'});
- priceUpdateEvent.watch(function (error, result) {
+priceUpdateEvent.watch(function (error, result) {
     const operator = result.args.operator;
     const procedure = result.args.procedure;
     const price = result.args.price;
-    const time = result.args.time;
-
-    prices.push(price);
-    times.push(time);
-
-    priceChart.update();
+    const time = moment.unix(result.args.time.toNumber()).fromNow();
+    
+    prices[procedure].push(price.toNumber());
+    times[procedure].push(time);
 });
 ```
 
