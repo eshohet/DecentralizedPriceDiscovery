@@ -49,15 +49,34 @@ $("#search").autocomplete({
 }).keypress(function (e) {
     const searchValue = $("#search").val();
     const procedureNumber = procedures.indexOf(searchValue);
-    if(procedureNumber > -1) {
+    if (procedureNumber > -1) {
         //switch graph
-        console.log(`switching graph to procedure ${procedureNumber}`);
-        currentProcedure = procedureNumber;
-        $("#dashboardMessage").css('display', 'none');
-        $("#priceChart").css('display', 'block');
-        addData(priceChart, times[currentProcedure], prices[currentProcedure]);
+        changeProcedure(procedureNumber);
     }
 });
+
+function changeProcedure(procedureNumber) {
+    console.log(`switching graph to procedure ${procedureNumber}`);
+    currentProcedure = procedureNumber;
+
+    if(prices[currentProcedure] === undefined) {
+        prices[currentProcedure] = [];
+        times[currentProcedure] = [];
+    }
+    $("#dashboardMessage").css('display', 'none');
+    $("#priceChart").css('display', 'block');
+    $("#priceTitle").text(`${procedures[procedureNumber]} Price History`);
+    addData(priceChart, times[currentProcedure], prices[currentProcedure]);
+}
+
+procedures.map((procedure) => {
+    $("#medicalList").append(`<div class="card text-white bg-dark mb-3" style="width: 18rem;">
+  <div class="card-body">
+    <h5 class="card-title"><a href="javascript:changeProcedure(${procedures.indexOf(procedure)});">${procedure}</a></h5>
+  </div>
+</div>`);
+});
+
 
 $.get('./Prices.json', (contractData) => {
 
