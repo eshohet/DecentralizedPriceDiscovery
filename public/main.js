@@ -1,7 +1,7 @@
 const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
 let contract, priceChart;
-let prices = [];
-let times = [];
+let prices = [...new Array(procedures.length)].map((el, i, arr) => []);
+let times = prices;
 let currentProcedure = 0;
 
 async function submitPrice() {
@@ -136,8 +136,8 @@ $.get('./Prices.json', (contractData) => {
         const price = result.args.price;
         const time = moment.unix(result.args.time.toNumber()).fromNow();
 
-        prices[procedure] === undefined ? prices[procedure] = [price.toNumber()] : prices[procedure].push(price.toNumber());
-        times[procedure] === undefined ? times[procedure] = [time] : times[procedure].push(time);
+        prices[procedure].push(price.toNumber());
+        times[procedure].push(time);
 
         addData(priceChart, times[currentProcedure], prices[currentProcedure]);
 
